@@ -9,7 +9,7 @@ from typing import List, Tuple
 
 
 def image_processing(
-    img: np.ndarray, kernel_size: int = 3, iterations: int = 1
+    img: np.ndarray, filter_kernel_size: int = 3, blur_kernel_size: int = 10, iterations: int = 1
 ) -> np.ndarray:
     """
     `img`: np.ndarray
@@ -23,14 +23,11 @@ def image_processing(
         `np.ndarray` (img)
     """
     kernel = np.ones(
-        (kernel_size, kernel_size),
+        (filter_kernel_size, filter_kernel_size),
         dtype=np.uint8,
     )
 
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    gray_img[gray_img < 200] = 0
-    gray_img[gray_img >= 200] = 255
+    img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
 
     img = cv2.morphologyEx(
         img,

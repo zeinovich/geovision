@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Tuple
 import logging
 
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import DBSCAN
 
 logging.basicConfig(
@@ -14,14 +15,12 @@ logging.basicConfig(
 
 logger = logging.getLogger(name=f"src.utils.line_digitilizer")
 
-AD_DBSCAN_EPS = 0.5
-AD_DBSCAN_MIN_SAMPLES = 5
-
 def digitilize_single_line(
         cropped_img: np.array,
         bbox: Tuple[int, int, int, int],
         depthK: float, depthB: float,
-        mnemonicK: float, mnemonicB: float):
+        mnemonicK: float, mnemonicB: float,
+        ad_dbscan_eps=0.5, ad_dbscan_min_samples=3):
     """
     Keyword arguments:
 
@@ -40,7 +39,10 @@ def digitilize_single_line(
     # Detect anomaly pixels
     cluster_labels = []
     for i in tqdm(range(cropped_img.shape[0]), desc='Line detection'):
-        clustering = DBSCAN(eps=AD_DBSCAN_EPS, min_samples=AD_DBSCAN_MIN_SAMPLES).fit(cropped_img[i])
+        scaler = MinMaxScaler()
+        clustering = DBSCAN(eps=ad_dbscan_eps, min_samples=ad_dbscan_min_samples).fit(
+            scaler.fit_transform(cropped_img[i])
+        )
         cluster_labels.append(clustering.labels_)
     cluster_labels = np.array(cluster_labels)
     cluster_labels[cluster_labels != -1] = 0
@@ -61,4 +63,4 @@ def digitilize_single_line(
     x_values = np.array(x_values)
     y_values = np.array(y_values)
 
-    return x_values, y_values
+    return cluster_labels, x_values, y_values
