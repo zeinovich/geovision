@@ -72,3 +72,36 @@ def get_ocr(
         texts_list.extend(texts)
 
     return boxes_list, texts_list
+
+
+def cover_detections(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
+    """
+    `img`: np.ndarray
+        Original Image
+    `boxes`: List[List[int]]
+        OCR detections bboxes
+
+    Returns
+    `img`: np.ndarray
+        Image with covered detections
+    """
+    img_copy = img.copy()
+    mean_color = img_copy.mean(axis=0).mean(axis=0).astype(np.uint8).tolist()
+
+    NARROW = 1
+
+    for box in boxes:
+        x1, y1 = box[0]
+        x2, y2 = box[2]
+        x1, y1 = int(x1 - NARROW), int(y1 - NARROW)
+        x2, y2 = int(x2 - NARROW), int(y2 - NARROW)
+
+        cv2.rectangle(
+            img_copy,
+            (x1, y1),
+            (x2, y2),
+            mean_color,
+            -1,
+        )
+
+    return img_copy
