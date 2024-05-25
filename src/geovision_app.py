@@ -77,13 +77,12 @@ def main():
 
             # left is leftmost point of axis detections
             # for axes in the middle
-            slope, intercept, right, left, top = compute_depth_scale(
+            slope, intercept, bboxes = compute_depth_scale(
                 (boxes, text_in_boxes), image.shape[1]
             )
 
             image_with_boxes = display_boxes(image, boxes)
-            image_with_axes = display_axes(image_with_boxes, right, top)
-            image_with_axes = Image.fromarray(image_with_axes)
+            image_with_axes = Image.fromarray(image_with_boxes)
             st.image(
                 image_with_axes,
             )
@@ -95,14 +94,15 @@ def main():
         #     'FEATURE2' : np.random.random(10000)
         # })
 
-        path_to_las = st.text_input('Enter path to las file')
+        path_to_las = st.text_input("Enter path to las file")
 
         res_df = ls.read(path_to_las).df().reset_index()
         st.dataframe(res_df)
 
         # table = pivot_data_for_visualization(res_df, col_reference="FEATURE", depth_step=1)
-        fig = logview(res_df, col_depth='DEPT')
+        fig = logview(res_df, col_depth="DEPT")
         st.plotly_chart(fig, use_container_width=True)
+
 
 if __name__ == "__main__":
     main()

@@ -98,6 +98,18 @@ def get_trend(axes: pd.DataFrame) -> Tuple[float, float]:
     return lr.coef_[0][0], lr.intercept_[0]
 
 
+def get_boxes(right, left, top, width, height):
+    # xmin ymin xmax ymax
+    bboxes = []
+    if left > 0.25 * width:
+        bboxes.append([0, top, left, height])
+        bboxes.append([right, top, width, height])
+    else:
+        bboxes.append([right, top, width, height])
+
+    return bboxes
+
+
 def compute_depth_scale(
     ocr_pred: Tuple[List[List[int]], List[str]],
     width: int,
@@ -119,10 +131,13 @@ def compute_depth_scale(
         bins = int(width / 200)
 
     axes, right, left, top = vertical_binning(boxes, texts, width, bins)
+
+    bboxes = get_boxes(right, left, top, width)
+
     axes = preprocess_axes(axes)
 
     axes["class"] = get_outliers(axes)
 
     slope, intercept = get_trend(axes)
 
-    return slope, intercept, right, left, top
+    return slope, intercept, bboxes
