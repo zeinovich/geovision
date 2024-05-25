@@ -25,6 +25,8 @@ def vertical_binning(
     `axes`: List[Tuple[List[int], str]]
         Predictions in bin with most predictions \
         (corresponds to vertical axes bin)
+    `loc`: int
+        Rightmost location of detections
     """
     win_size = int(width / bins)
 
@@ -50,8 +52,9 @@ def vertical_binning(
 
     axes = dict(detects_bins[max_i])
     axes = axes["detects"]
+    loc = max(ax[0][2][0] for ax in axes)
 
-    return axes
+    return axes, loc
 
 
 def preprocess_axes(axes: List[Tuple[List[int], str]]) -> pd.DataFrame:
