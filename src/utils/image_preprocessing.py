@@ -418,3 +418,4 @@ def logview(
     fig.update_layout(height=900, width=1200, showlegend=False)
 
     return fig
+
