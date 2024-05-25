@@ -116,11 +116,11 @@ def compute_depth_scale(
     if width > 2000:
         bins = int(width / 200)
 
-    axes = vertical_binning(boxes, texts, width, bins)
+    axes, loc = vertical_binning(boxes, texts, width, bins)
     axes = preprocess_axes(axes)
 
     axes["class"] = get_outliers(axes)
 
     slope, intercept = get_trend(axes)
 
-    return slope, intercept
+    return slope, intercept, loc
