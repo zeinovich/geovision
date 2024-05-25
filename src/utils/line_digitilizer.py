@@ -57,8 +57,8 @@ def digitilize_single_line(
         cropped_img: np.array,
         bbox: Tuple[int, int, int, int],
         depthK: float, depthB: float,
-        mnemonicK: float, mnemonicB: float,
-        ad_dbscan_eps=0.5, ad_dbscan_min_samples=3):
+        mnemonicK = 1, mnemonicB = 0,
+        ad_dbscan_eps=0.03, ad_dbscan_min_samples=5):
     """
     Keyword arguments:
 

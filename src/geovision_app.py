@@ -49,7 +49,9 @@ def main():
     uploaded_file = st.sidebar.file_uploader(
         "Upload image", type=["jpg", "jpeg", "png", "pdf", "tiff", "cdr"]
     )
-    image = image_preprocessing.load_and_display_file(uploaded_file)
+    image = None
+    if uploaded_file:
+        image = image_preprocessing.load_and_display_file(uploaded_file)
 
     if selected_step == "Step 1: Upload image":
         if uploaded_file:
@@ -81,12 +83,18 @@ def main():
                 (boxes, text_in_boxes), image.shape[1]
             )
 
+            st.write([slope, intercept, right, left, top])
+
             image_with_boxes = display_boxes(image, boxes)
             image_with_axes = display_axes(image_with_boxes, right, top)
             image_with_axes = Image.fromarray(image_with_axes)
             st.image(
                 image_with_axes,
             )
+
+
+
+
 
     if selected_step == "Step 3: Result":
         # res_df = pd.DataFrame({
