@@ -5,15 +5,7 @@ from paddleocr import PaddleOCR
 
 import math
 
-from typing import List, Tuple, Dict
-
-OCR_MODEL = PaddleOCR(
-    ocr_version="PP-OCRv4",
-    use_angle_cls=True,
-    lang="en",
-    use_gpu=False,
-    show_log=False,
-)
+from typing import List, Tuple
 
 
 def image_processing(
@@ -45,7 +37,9 @@ def image_processing(
     return img
 
 
-def get_ocr(img: np.ndarray, step: int = 500) -> Tuple[List[List[int]], List[str]]:
+def get_ocr(
+    ocr_model: PaddleOCR, img: np.ndarray, step: int = 500
+) -> Tuple[List[List[int]], List[str]]:
     """
     `img`: np.ndarray
         Input image
@@ -69,7 +63,7 @@ def get_ocr(img: np.ndarray, step: int = 500) -> Tuple[List[List[int]], List[str
         bottom = max(0, i * step - 100)
         top = (i + 1) * step
 
-        pred = OCR_MODEL.ocr(img[bottom:top])
+        pred = ocr_model.ocr(img[bottom:top])
 
         boxes = [[[box[0], box[1] + bottom] for box in p[0]] for p in pred[0]]
         texts = [p[1][0] for p in pred[0]]
