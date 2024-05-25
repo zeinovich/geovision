@@ -8,23 +8,27 @@ from typing import List, Tuple
 
 
 def load_and_display_file(uploaded_file):
-    file_type = uploaded_file.type.split('/')[-1].lower()
+    file_type = uploaded_file.type.split("/")[-1].lower()
 
-    if file_type in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
+    if file_type in ["jpg", "jpeg", "png", "tiff", "tif"]:
         image = Image.open(uploaded_file)
-    elif file_type == 'pdf':
+    elif file_type == "pdf":
         # Используем pdf2image для конвертации PDF в изображение
         images = convert_from_bytes(uploaded_file.read())
         image = images[0]  # Берем первую страницу PDF
-    elif file_type == 'cdr':
+    elif file_type == "cdr":
         return None
     else:
         return -1
 
     return image
 
+
 def image_processing(
-    img: np.ndarray, filter_kernel_size: int = 3, blur_kernel_size: int = 10, iterations: int = 1
+    img: np.ndarray,
+    filter_kernel_size: int = 3,
+    blur_kernel_size: int = 10,
+    iterations: int = 1,
 ) -> np.ndarray:
     """
     `img`: np.ndarray
@@ -42,7 +46,8 @@ def image_processing(
         dtype=np.uint8,
     )
 
-    img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
+    if blur_kernel_size > 0:
+        img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
 
     img = cv2.morphologyEx(
         img,
@@ -68,7 +73,7 @@ def get_ocr(
         Tuple of `List` of bboxes and `List` of text
     """
     img = np.array(img)
-    img = image_processing(img)
+    img = image_processing(img, blur_kernel_size=0)
 
     height = img.shape[0]
     step = step

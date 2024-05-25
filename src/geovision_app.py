@@ -2,7 +2,7 @@ import streamlit as st
 from paddleocr import PaddleOCR
 from PIL import Image
 
-from utils.image_preprocessing import image_processing, get_ocr
+from utils.image_preprocessing import get_ocr
 from utils.plot_scale import compute_depth_scale
 from streamlit_option_menu import option_menu
 
@@ -62,6 +62,8 @@ def main():
 
         preds = get_ocr(OCR_MODEL, image)
         st.write(preds)
+
+        print(compute_depth_scale(preds, image.shape[1]))
 
     if selected_step == "Step 3: Result":
         pass
