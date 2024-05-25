@@ -102,10 +102,10 @@ def get_boxes(right, left, top, width, height):
     # xmin ymin xmax ymax
     bboxes = []
     if left > 0.25 * width:
-        bboxes.append([0, top, left, height])
-        bboxes.append([right, top, width, height])
+        bboxes.append(list(map(int, [0, top, left, height])))
+        bboxes.append(list(map(int, [right, top, width, height])))
     else:
-        bboxes.append([right, top, width, height])
+        bboxes.append(list(map(int, [right, top, width, height])))
 
     return bboxes
 
@@ -113,6 +113,7 @@ def get_boxes(right, left, top, width, height):
 def compute_depth_scale(
     ocr_pred: Tuple[List[List[int]], List[str]],
     width: int,
+    height: int
 ):
     """
     `ocr_pred`: Tuple[List[List[int]], List[str]]
@@ -132,7 +133,7 @@ def compute_depth_scale(
 
     axes, right, left, top = vertical_binning(boxes, texts, width, bins)
 
-    bboxes = get_boxes(right, left, top, width)
+    bboxes = get_boxes(right, left, top, width, height)
 
     axes = preprocess_axes(axes)
 
