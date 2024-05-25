@@ -33,7 +33,10 @@ def load_and_display_file(uploaded_file):
     return image
 
 def image_processing(
-    img: np.ndarray, filter_kernel_size: int = 3, blur_kernel_size: int = 10, iterations: int = 1
+    img: np.ndarray,
+    filter_kernel_size: int = 3,
+    blur_kernel_size: int = 10,
+    iterations: int = 1,
 ) -> np.ndarray:
     """
     `img`: np.ndarray
@@ -51,7 +54,8 @@ def image_processing(
         dtype=np.uint8,
     )
 
-    img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
+    if blur_kernel_size > 0:
+        img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
 
     img = cv2.morphologyEx(
         img,
@@ -61,7 +65,6 @@ def image_processing(
     )
 
     return img
-
 
 def get_ocr(
     ocr_model: PaddleOCR, img: np.ndarray, step: int = 500
@@ -77,7 +80,7 @@ def get_ocr(
         Tuple of `List` of bboxes and `List` of text
     """
     img = np.array(img)
-    img = image_processing(img)
+    img = image_processing(img, blur_kernel_size=0)
 
     height = img.shape[0]
     step = step
@@ -394,4 +397,3 @@ def logview(
     fig.update_layout(height=900, width=1200, showlegend=False)
 
     return fig
-
