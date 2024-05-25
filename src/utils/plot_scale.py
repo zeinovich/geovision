@@ -52,10 +52,11 @@ def vertical_binning(
 
     axes = dict(detects_bins[max_i])
     axes = axes["detects"]
-    loc = max(ax[0][2][0] for ax in axes)
-    top = min(ax[0][0][1] for ax in axes)
+    right = max(ax[0][2][0] for ax in axes)
+    left = max(ax[0][0][0] for ax in axes)
+    top = min(ax[0][2][1] for ax in axes)
 
-    return axes, loc, top
+    return axes, right, left, top
 
 
 def preprocess_axes(axes: List[Tuple[List[int], str]]) -> pd.DataFrame:
@@ -117,11 +118,11 @@ def compute_depth_scale(
     if width > 2000:
         bins = int(width / 200)
 
-    axes, loc = vertical_binning(boxes, texts, width, bins)
+    axes, right, left, top = vertical_binning(boxes, texts, width, bins)
     axes = preprocess_axes(axes)
 
     axes["class"] = get_outliers(axes)
 
     slope, intercept = get_trend(axes)
 
-    return slope, intercept, loc
+    return slope, intercept, right, left, top

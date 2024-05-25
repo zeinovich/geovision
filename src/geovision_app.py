@@ -72,12 +72,17 @@ def main():
 
             boxes, text_in_boxes = get_ocr(OCR_MODEL, image)
 
-            slope, intercept, loc, top = compute_depth_scale(
+            image = np.array(image)
+
+            # left is leftmost point of axis detections
+            # for axes in the middle
+            slope, intercept, right, left, top = compute_depth_scale(
                 (boxes, text_in_boxes), image.shape[1]
             )
 
             image_with_boxes = display_boxes(image, boxes)
-            image_with_axes = display_axes(image, loc, top)
+            image_with_axes = display_axes(image_with_boxes, right, top)
+            image_with_axes = Image.fromarray(image_with_axes)
             st.image(
                 image_with_axes,
             )

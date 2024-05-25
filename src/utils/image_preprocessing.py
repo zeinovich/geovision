@@ -172,12 +172,12 @@ def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
 
 def display_axes(img: np.ndarray, loc: int, top: int) -> np.ndarray:
     line_thickness = 2
-    x1, y1 = loc, top
-    x2, y2 = loc, img.shape[0] - 20
+    x1, y1 = int(loc), int(top)
+    x2, y2 = int(loc), int(img.shape[0] - 20)
 
     cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), thickness=line_thickness)
     cv2.line(
-        img, (100, y1), (img.shape[1] - 100, y2), (0, 255, 0), thickness=line_thickness
+        img, (100, y1), (img.shape[1] - 100, y1), (0, 255, 0), thickness=line_thickness
     )
 
     return img
