@@ -1,12 +1,27 @@
+from PIL import Image
 import cv2
+from pdf2image import convert_from_bytes
 import numpy as np
-
 from paddleocr import PaddleOCR
-
 import math
-
 from typing import List, Tuple
 
+
+def load_and_display_file(uploaded_file):
+    file_type = uploaded_file.type.split('/')[-1].lower()
+
+    if file_type in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
+        image = Image.open(uploaded_file)
+    elif file_type == 'pdf':
+        # Используем pdf2image для конвертации PDF в изображение
+        images = convert_from_bytes(uploaded_file.read())
+        image = images[0]  # Берем первую страницу PDF
+    elif file_type == 'cdr':
+        return None
+    else:
+        return -1
+
+    return image
 
 def image_processing(
     img: np.ndarray, filter_kernel_size: int = 3, blur_kernel_size: int = 10, iterations: int = 1
@@ -52,6 +67,7 @@ def get_ocr(
     `predictions`: Tuple[List[List[int]], List[str]]
         Tuple of `List` of bboxes and `List` of text
     """
+    img = np.array(img)
     img = image_processing(img)
 
     height = img.shape[0]
