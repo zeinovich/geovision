@@ -1,4 +1,9 @@
 import streamlit as st
+from paddleocr import PaddleOCR
+from PIL import Image
+
+from utils.image_preprocessing import image_processing, get_ocr
+from utils.plot_scale import compute_depth_scale
 from streamlit_option_menu import option_menu
 
 from PIL import Image
@@ -30,21 +35,31 @@ def main():
         )
 
     uploaded_file = st.sidebar.file_uploader("Upload image", type=['jpg', 'jpeg', 'png', 'pdf', 'tiff', 'cdr'])
+    image = None
 
     if selected_step == 'Step 1: Upload image':
         if uploaded_file:
-
             st.title("Uploaded file")
-            # image = Image.open(uploaded_image)
-
             image = image_preprocessing.load_and_display_file(uploaded_file)
             st.image(image, use_column_width=True)
 
     if selected_step == 'Step 2: Image processing':
-        pass
+
+        st.title('Image processing stages')
+        OCR_MODEL = PaddleOCR(
+            ocr_version="PP-OCRv4",
+            use_angle_cls=True,
+            lang="en",
+            use_gpu=False,
+            show_log=False,
+        )
+
+        preds = get_ocr(OCR_MODEL, image)
+        st.write(preds)
 
     if selected_step == 'Step 3: Result':
         pass
+
 
 
 if __name__ == "__main__":

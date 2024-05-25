@@ -3,3 +3,5 @@ matplotlib
 streamlit
 streamlit-option-menu
 pdf2image
+paddlepaddle==2.6.1
+paddleocr=2.7.3
