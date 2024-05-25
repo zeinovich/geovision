@@ -19,8 +19,7 @@ def load_and_display_file(uploaded_file):
     elif file_type == 'cdr':
         return None
     else:
-        st.error("Неподдерживаемый формат файла")
-        return None
+        return -1
 
     return image
 
