@@ -27,6 +27,11 @@ def image_processing(
         dtype=np.uint8,
     )
 
+    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    gray_img[gray_img < 200] = 0
+    gray_img[gray_img >= 200] = 255
+
     img = cv2.morphologyEx(
         img,
         cv2.MORPH_CLOSE,
