@@ -1,2 +1,5 @@
 opencv-python
 matplotlib
+streamlit
+streamlit-option-menu
+pdf2image
