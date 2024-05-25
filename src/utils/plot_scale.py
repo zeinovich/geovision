@@ -25,6 +25,8 @@ def vertical_binning(
     `axes`: List[Tuple[List[int], str]]
         Predictions in bin with most predictions \
         (corresponds to vertical axes bin)
+    `loc`: int
+        Rightmost location of detections
     """
     win_size = int(width / bins)
 
@@ -50,8 +52,9 @@ def vertical_binning(
 
     axes = dict(detects_bins[max_i])
     axes = axes["detects"]
+    loc = max(ax[0][2][0] for ax in axes)
 
-    return axes
+    return axes, loc
 
 
 def preprocess_axes(axes: List[Tuple[List[int], str]]) -> pd.DataFrame:
@@ -113,11 +116,11 @@ def compute_depth_scale(
     if width > 2000:
         bins = int(width / 200)
 
-    axes = vertical_binning(boxes, texts, width, bins)
+    axes, loc = vertical_binning(boxes, texts, width, bins)
     axes = preprocess_axes(axes)
 
     axes["class"] = get_outliers(axes)
 
     slope, intercept = get_trend(axes)
 
-    return slope, intercept
+    return slope, intercept, loc

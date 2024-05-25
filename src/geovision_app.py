@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pandas as pd
 import streamlit as st
 from paddleocr import PaddleOCR
@@ -44,7 +45,10 @@ def main():
         if uploaded_file:
             st.title("Uploaded file")
 
-            st.image(image, use_column_width=True)
+            if image == -1:
+                st.error("Неподдерживаемый формат файла")
+            else:
+                st.image(image, use_column_width=True)
 
     if selected_step == 'Step 2: Image processing':
         if image:

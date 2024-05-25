@@ -14,10 +14,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 
-def load_and_display_file(uploaded_file):
-    if not uploaded_file:
-        return None
 
+
+def load_and_display_file(uploaded_file):
     file_type = uploaded_file.type.split('/')[-1].lower()
 
     if file_type in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
@@ -29,12 +28,12 @@ def load_and_display_file(uploaded_file):
     elif file_type == 'cdr':
         return None
     else:
-        return None
+        return -1
 
     return image
 
 def image_processing(
-    img: np.ndarray, kernel_size: int = 3, iterations: int = 1
+    img: np.ndarray, filter_kernel_size: int = 3, blur_kernel_size: int = 10, iterations: int = 1
 ) -> np.ndarray:
     """
     `img`: np.ndarray
@@ -47,16 +46,12 @@ def image_processing(
     Return
         `np.ndarray` (img)
     """
-
     kernel = np.ones(
-        (kernel_size, kernel_size),
+        (filter_kernel_size, filter_kernel_size),
         dtype=np.uint8,
     )
 
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    gray_img[gray_img < 200] = 0
-    gray_img[gray_img >= 200] = 255
+    img = cv2.blur(img, (blur_kernel_size, blur_kernel_size))
 
     img = cv2.morphologyEx(
         img,
@@ -81,9 +76,8 @@ def get_ocr(
     `predictions`: Tuple[List[List[int]], List[str]]
         Tuple of `List` of bboxes and `List` of text
     """
-    img = np.array(img) #.astype(np.int)
+    img = np.array(img)
     img = image_processing(img)
-
 
     height = img.shape[0]
     step = step
@@ -98,12 +92,11 @@ def get_ocr(
 
         pred = ocr_model.ocr(img[bottom:top])
 
-        if pred[0]:
-            boxes = [[[box[0], box[1] + bottom] for box in p[0]] for p in pred[0]]
-            texts = [p[1][0] for p in pred[0]]
+        boxes = [[[box[0], box[1] + bottom] for box in p[0]] for p in pred[0]]
+        texts = [p[1][0] for p in pred[0]]
 
-            boxes_list.extend(boxes)
-            texts_list.extend(texts)
+        boxes_list.extend(boxes)
+        texts_list.extend(texts)
 
     return boxes_list, texts_list
 
@@ -120,7 +113,6 @@ def cover_detections(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
         Image with covered detections
     """
     img_copy = img.copy()
-    img_copy = np.array(img_copy)
     mean_color = img_copy.mean(axis=0).mean(axis=0).astype(np.uint8).tolist()
 
     NARROW = 1
@@ -140,8 +132,6 @@ def cover_detections(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
         )
 
     return img_copy
-
-
 
 def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
     """
@@ -406,5 +396,4 @@ def logview(
     fig.update_layout(height=900, width=1200, showlegend=False)
 
     return fig
-
 

@@ -1,5 +1,7 @@
 opencv-python
 matplotlib
+supervision
+git+https://github.com/THU-MIG/yolov10.git
 streamlit
 streamlit-option-menu
 pdf2image
