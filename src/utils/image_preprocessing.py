@@ -10,10 +10,10 @@ import os
 from aspose.imaging import Image as aspose_image
 from aspose.imaging.imageoptions import *
 
+from plotly.subplots import make_subplots
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
-
 
 
 def load_and_display_file(uploaded_file):
@@ -92,11 +92,12 @@ def get_ocr(
 
         pred = ocr_model.ocr(img[bottom:top])
 
-        boxes = [[[box[0], box[1] + bottom] for box in p[0]] for p in pred[0]]
-        texts = [p[1][0] for p in pred[0]]
+        if pred[0]:
+            boxes = [[[box[0], box[1] + bottom] for box in p[0]] for p in pred[0]]
+            texts = [p[1][0] for p in pred[0]]
 
-        boxes_list.extend(boxes)
-        texts_list.extend(texts)
+            boxes_list.extend(boxes)
+            texts_list.extend(texts)
 
     return boxes_list, texts_list
 
@@ -146,7 +147,7 @@ def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
     """
     img_copy = img.copy()
     img_copy = np.array(img_copy)
-    mean_color = img_copy.mean(axis=0).mean(axis=0).astype(np.uint8).tolist()
+    # mean_color = img_copy.mean(axis=0).mean(axis=0).astype(np.uint8).tolist()
 
     NARROW = 1
 
@@ -165,9 +166,6 @@ def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
         )
 
     return img_copy
-
-
-
 
 
 def pivot_data_for_visualization(

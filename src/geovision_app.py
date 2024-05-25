@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import pandas as pd
 import streamlit as st
 from paddleocr import PaddleOCR
@@ -68,10 +67,12 @@ def main():
     if selected_step == 'Step 3: Result':
 
         res_df = pd.DataFrame({
-            'DEPTH': np.arange(100),
-            'FEATURE': np.random.random(100)
+            'DEPTH': np.arange(0, 1000),
+            'FEATURE': np.random.random(1000),
+            'FEATURE2' : np.random.random(1000)
         })
-        table = pivot_data_for_visualization(res_df, depth_step=1)
+        st.dataframe(res_df)
+        table = pivot_data_for_visualization(res_df, col_reference="FEATURE", depth_step=1)
         fig = logview(res_df, table)
         st.plotly_chart(fig)
 
