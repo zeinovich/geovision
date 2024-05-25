@@ -3,7 +3,15 @@ import streamlit as st
 from paddleocr import PaddleOCR
 from PIL import Image
 
-from utils.image_preprocessing import image_processing, get_ocr, cover_detections, display_boxes, pivot_data_for_visualization, logview
+from utils.image_preprocessing import (
+    image_processing,
+    get_ocr,
+    cover_detections,
+    display_boxes,
+    display_axes,
+    pivot_data_for_visualization,
+    logview,
+)
 from utils.plot_scale import compute_depth_scale
 from streamlit_option_menu import option_menu
 
@@ -22,25 +30,27 @@ import plotly.express as px
 def main():
 
     st.set_option("deprecation.showPyplotGlobalUse", False)
-    st.set_page_config(layout='wide')
-    st.sidebar.markdown('# GeoVision')
+    st.set_page_config(layout="wide")
+    st.sidebar.markdown("# GeoVision")
 
     with st.sidebar:
         selected_step = option_menu(
-            menu_title='',
+            menu_title="",
             options=[
-                'Step 1: Upload image',
-                'Step 2: Image processing',
-                'Step 3: Result'
+                "Step 1: Upload image",
+                "Step 2: Image processing",
+                "Step 3: Result",
             ],
-            menu_icon='display',
-            default_index=0
+            menu_icon="display",
+            default_index=0,
         )
 
-    uploaded_file = st.sidebar.file_uploader("Upload image", type=['jpg', 'jpeg', 'png', 'pdf', 'tiff', 'cdr'])
+    uploaded_file = st.sidebar.file_uploader(
+        "Upload image", type=["jpg", "jpeg", "png", "pdf", "tiff", "cdr"]
+    )
     image = image_preprocessing.load_and_display_file(uploaded_file)
 
-    if selected_step == 'Step 1: Upload image':
+    if selected_step == "Step 1: Upload image":
         if uploaded_file:
             st.title("Uploaded file")
 
@@ -49,9 +59,9 @@ def main():
             else:
                 st.image(image, use_column_width=True)
 
-    if selected_step == 'Step 2: Image processing':
+    if selected_step == "Step 2: Image processing":
         if image:
-            st.title('Image processing stages')
+            st.title("Image processing stages")
             OCR_MODEL = PaddleOCR(
                 ocr_version="PP-OCRv4",
                 use_angle_cls=True,
@@ -61,18 +71,30 @@ def main():
             )
 
             boxes, text_in_boxes = get_ocr(OCR_MODEL, image)
+
+            slope, intercept, loc, top = compute_depth_scale(
+                (boxes, text_in_boxes), image.shape[1]
+            )
+
             image_with_boxes = display_boxes(image, boxes)
-            st.image(image_with_boxes, )
+            image_with_axes = display_axes(image, loc, top)
+            st.image(
+                image_with_axes,
+            )
 
-    if selected_step == 'Step 3: Result':
+    if selected_step == "Step 3: Result":
 
-        res_df = pd.DataFrame({
-            'DEPTH': np.arange(0, 1000),
-            'FEATURE': np.random.random(1000),
-            'FEATURE2' : np.random.random(1000)
-        })
+        res_df = pd.DataFrame(
+            {
+                "DEPTH": np.arange(0, 1000),
+                "FEATURE": np.random.random(1000),
+                "FEATURE2": np.random.random(1000),
+            }
+        )
         st.dataframe(res_df)
-        table = pivot_data_for_visualization(res_df, col_reference="FEATURE", depth_step=1)
+        table = pivot_data_for_visualization(
+            res_df, col_reference="FEATURE", depth_step=1
+        )
         fig = logview(res_df, table)
         st.plotly_chart(fig)
 

@@ -6,10 +6,6 @@ from paddleocr import PaddleOCR
 import math
 from typing import List, Tuple
 
-import os
-from aspose.imaging import Image as aspose_image
-from aspose.imaging.imageoptions import *
-
 from plotly.subplots import make_subplots
 import plotly.express as px
 import plotly.graph_objects as go
@@ -17,20 +13,21 @@ import pandas as pd
 
 
 def load_and_display_file(uploaded_file):
-    file_type = uploaded_file.type.split('/')[-1].lower()
+    file_type = uploaded_file.type.split("/")[-1].lower()
 
-    if file_type in ['jpg', 'jpeg', 'png', 'tiff', 'tif']:
+    if file_type in ["jpg", "jpeg", "png", "tiff", "tif"]:
         image = Image.open(uploaded_file)
-    elif file_type == 'pdf':
+    elif file_type == "pdf":
         # Используем pdf2image для конвертации PDF в изображение
         images = convert_from_bytes(uploaded_file.read())
         image = images[0]  # Берем первую страницу PDF
-    elif file_type == 'cdr':
+    elif file_type == "cdr":
         return None
     else:
         return -1
 
     return image
+
 
 def image_processing(
     img: np.ndarray,
@@ -65,6 +62,7 @@ def image_processing(
     )
 
     return img
+
 
 def get_ocr(
     ocr_model: PaddleOCR, img: np.ndarray, step: int = 500
@@ -137,6 +135,7 @@ def cover_detections(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
 
     return img_copy
 
+
 def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
     """
     `img`: np.ndarray
@@ -171,11 +170,24 @@ def display_boxes(img: np.ndarray, boxes: List[List[int]]) -> np.ndarray:
     return img_copy
 
 
+def display_axes(img: np.ndarray, loc: int, top: int) -> np.ndarray:
+    line_thickness = 2
+    x1, y1 = loc, top
+    x2, y2 = loc, img.shape[0] - 20
+
+    cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), thickness=line_thickness)
+    cv2.line(
+        img, (100, y1), (img.shape[1] - 100, y2), (0, 255, 0), thickness=line_thickness
+    )
+
+    return img
+
+
 def pivot_data_for_visualization(
-        df_strat: pd.DataFrame,
-        col_reference: str,
-        col_depth: str = 'DEPTH',
-        depth_step: float = 0.5
+    df_strat: pd.DataFrame,
+    col_reference: str,
+    col_depth: str = "DEPTH",
+    depth_step: float = 0.5,
 ) -> pd.DataFrame:
     """
     function to prepare the stratigraphy data for visualization
@@ -190,9 +202,11 @@ def pivot_data_for_visualization(
     """
 
     # pivot table
-    df_pivot = df_strat[[col_depth, col_reference]].dropna().pivot(index=col_depth,
-                                                                   columns=col_reference,
-                                                                   values=col_depth)
+    df_pivot = (
+        df_strat[[col_depth, col_reference]]
+        .dropna()
+        .pivot(index=col_depth, columns=col_reference, values=col_depth)
+    )
     # fillna with 0
     df_pivot = df_pivot.fillna(0)
 
@@ -203,25 +217,29 @@ def pivot_data_for_visualization(
     df_pivot = df_pivot.reset_index()
 
     # rename Кровля to MD
-    df_pivot.rename(columns={col_depth: 'DEPTH'}, inplace=True)
+    df_pivot.rename(columns={col_depth: "DEPTH"}, inplace=True)
 
     # resample the dataframe
-    start, end = df_pivot['DEPTH'].min(), df_pivot['DEPTH'].max()
+    start, end = df_pivot["DEPTH"].min(), df_pivot["DEPTH"].max()
     new_md = list(np.arange(start, end + depth_step, depth_step))
-    resampled_df = pd.DataFrame(new_md, columns=['DEPTH'])
+    resampled_df = pd.DataFrame(new_md, columns=["DEPTH"])
 
-    resampled_df = resampled_df.merge(df_pivot, on='DEPTH', how='outer').sort_values(
-        by='DEPTH').ffill()
+    resampled_df = (
+        resampled_df.merge(df_pivot, on="DEPTH", how="outer")
+        .sort_values(by="DEPTH")
+        .ffill()
+    )
 
     return resampled_df
 
+
 def logview(
-        df_log:pd.DataFrame,
-        df_lith_mixed:pd.DataFrame = pd.DataFrame(),
-        df_lith_dominant:pd.DataFrame = pd.DataFrame(),
-        df_formation:pd.DataFrame = pd.DataFrame(),
-        features_to_log:list = [],
-        col_depth: str = "DEPTH"
+    df_log: pd.DataFrame,
+    df_lith_mixed: pd.DataFrame = pd.DataFrame(),
+    df_lith_dominant: pd.DataFrame = pd.DataFrame(),
+    df_formation: pd.DataFrame = pd.DataFrame(),
+    features_to_log: list = [],
+    col_depth: str = "DEPTH",
 ):
     """
     function to construct layout for the well
@@ -250,12 +268,12 @@ def logview(
     fig = make_subplots(rows=1, cols=num_cols, shared_yaxes=True)
 
     # specify features to plot
-    features = [col for col in df_log.columns if col not in [col_depth] + ['WELL']]
+    features = [col for col in df_log.columns if col not in [col_depth] + ["WELL"]]
 
-    #cur subplot pos
+    # cur subplot pos
     col_numbers = 0
 
-    #plotting features
+    # plotting features
     for ix, feat in enumerate(features):
         fig.add_trace(
             go.Scatter(
@@ -281,9 +299,11 @@ def logview(
 
         col_numbers += 1
 
-    #plot lithology dominant
+    # plot lithology dominant
     if not df_lith_dominant.empty:
-        cols_lith = df_lith_dominant.loc[:, df_lith_dominant.columns.str.startswith('LITHO_')].columns
+        cols_lith = df_lith_dominant.loc[
+            :, df_lith_dominant.columns.str.startswith("LITHO_")
+        ].columns
         for jx, lith in enumerate(cols_lith):
             df_lith_codes = get_lithology_mapper()
 
@@ -313,23 +333,25 @@ def logview(
             )
         col_numbers += 1
 
-    #plot lithology mixed
+    # plot lithology mixed
     if not df_lith_mixed.empty:
 
-        #get lith columns
-        cols_lith = df_lith_mixed.loc[:, df_lith_mixed.columns.str.startswith('LITHO_')].columns
+        # get lith columns
+        cols_lith = df_lith_mixed.loc[
+            :, df_lith_mixed.columns.str.startswith("LITHO_")
+        ].columns
 
         # cumulative sum by raw
         df_lith_mixed[cols_lith] = df_lith_mixed[cols_lith].cumsum(axis=1)
 
-        #visualize traces
+        # visualize traces
         for jx, lith in enumerate(cols_lith):
 
-            #init dict of lithology codes
+            # init dict of lithology codes
             df_lith_codes = get_lithology_mapper()
 
-            #init fill mode
-            fill_mode = 'tozerox' if jx == 0 else 'tonextx'
+            # init fill mode
+            fill_mode = "tozerox" if jx == 0 else "tonextx"
             fig.add_trace(
                 go.Scatter(
                     x=df_lith_mixed[lith],
@@ -339,9 +361,9 @@ def logview(
                     name=lith,
                     line=dict(color="black", width=0.01),
                     fillcolor=df_lith_codes[lith]["color"],
-                    fillpattern=dict(shape=df_lith_codes[lith]["hatch"],
-                                     fgcolor='black'
-                                     ),
+                    fillpattern=dict(
+                        shape=df_lith_codes[lith]["hatch"], fgcolor="black"
+                    ),
                 ),
                 row=1,
                 col=col_numbers + 1,
@@ -357,7 +379,7 @@ def logview(
             )
         col_numbers += 1
 
-    #plot formation tops
+    # plot formation tops
     if not df_formation.empty:
         features_to_drop = ["DEPTH"]
         cols_zone = [col for col in df_formation.columns if col not in features_to_drop]
@@ -376,14 +398,13 @@ def logview(
                 col=col_numbers + 1,
             )
 
-
         fig.update_xaxes(
             title="Fromation tops",
             row=1,
             col=col_numbers + 1,
             side="top",
             tickangle=-90,
-            automargin=True
+            automargin=True,
         )
         col_numbers += 1
 

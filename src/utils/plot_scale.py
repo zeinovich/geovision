@@ -53,8 +53,9 @@ def vertical_binning(
     axes = dict(detects_bins[max_i])
     axes = axes["detects"]
     loc = max(ax[0][2][0] for ax in axes)
+    top = min(ax[0][0][1] for ax in axes)
 
-    return axes, loc
+    return axes, loc, top
 
 
 def preprocess_axes(axes: List[Tuple[List[int], str]]) -> pd.DataFrame:
