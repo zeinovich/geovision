@@ -17,6 +17,7 @@ import os
 from utils import image_preprocessing
 
 import plotly.express as px
+import lasio as ls
 
 
 def main():
@@ -66,15 +67,20 @@ def main():
 
     if selected_step == 'Step 3: Result':
 
-        res_df = pd.DataFrame({
-            'DEPTH': np.arange(0, 1000),
-            'FEATURE': np.random.random(1000),
-            'FEATURE2' : np.random.random(1000)
-        })
+        # res_df = pd.DataFrame({
+        #     'DEPTH': np.arange(10000),
+        #     'FEATURE': np.random.random(10000),
+        #     'FEATURE2' : np.random.random(10000)
+        # })
+
+        path_to_las = st.text_input('Enter path to las file')
+
+        res_df = ls.read(path_to_las).df().reset_index()
         st.dataframe(res_df)
-        table = pivot_data_for_visualization(res_df, col_reference="FEATURE", depth_step=1)
-        fig = logview(res_df, table)
-        st.plotly_chart(fig)
+
+        # table = pivot_data_for_visualization(res_df, col_reference="FEATURE", depth_step=1)
+        fig = logview(res_df, col_depth='DEPT')
+        st.plotly_chart(fig, use_container_width=True)
 
 
 if __name__ == "__main__":
